@@ -7,10 +7,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMAX 600
 #define SERVO_FREQ 50
 
-const int GARRA_ABERTA  = 45; //quanto maior menos abre
-const int GARRA_FECHADA = 90;
-const int GARRA_FECHADA_PEGAR = 82; // quanto maior mais fecha
-
+const int VELOCIDADE_INICIAR = 500;
 const int VELOCIDADE = 40;
 const int VELOCIDADE_BASE = 80;
 const int VELOCIDADE_OMBRO = 100;
@@ -28,7 +25,7 @@ int posBase = 90;
 int posOmbro = 0;
 int posCotovelo = 0;
 int posPulso = 0;
-int posGarra = GARRA_FECHADA;
+int posGarra = 90;
 
 void setup() {
   Serial.begin(115200);
@@ -36,13 +33,24 @@ void setup() {
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQ);
 
-  pwm.setPWM(CANAL_BASE, 0, map(90, 0, 180, SERVOMIN, SERVOMAX));
-  pwm.setPWM(CANAL_OMBRO, 0, map(0, 0, 180, SERVOMIN, SERVOMAX));
-  pwm.setPWM(CANAL_COTOVELO, 0, map(0, 0, 180, SERVOMIN, SERVOMAX));
-  pwm.setPWM(CANAL_PULSO, 0, map(0, 0, 180, SERVOMIN, SERVOMAX));
-  pwm.setPWM(CANAL_GARRA, 0, map(GARRA_FECHADA, 0, 180, SERVOMIN, SERVOMAX));
+  Serial.println("Iniciando motores suavemente...");
+  
+  inicializacaoSuave();
 
-  Serial.println("Braço Pronto. Aguardando botão...");
+  Serial.println("Braço em posição de descanso. Aguardando botão...");
+}
+
+void inicializacaoSuave() {
+  pwm.setPWM(CANAL_OMBRO, 0, map(0, 0, 180, SERVOMIN, SERVOMAX));
+  delay(VELOCIDADE_INICIAR);
+  pwm.setPWM(CANAL_COTOVELO, 0, map(0, 0, 180, SERVOMIN, SERVOMAX));
+  delay(VELOCIDADE_INICIAR);
+  pwm.setPWM(CANAL_PULSO, 0, map(0, 0, 180, SERVOMIN, SERVOMAX));
+  delay(VELOCIDADE_INICIAR);
+  pwm.setPWM(CANAL_GARRA, 0, map(90, 0, 180, SERVOMIN, SERVOMAX));
+  delay(VELOCIDADE_INICIAR);
+  pwm.setPWM(CANAL_BASE, 0, map(90, 0, 180, SERVOMIN, SERVOMAX));
+  delay(VELOCIDADE_INICIAR);
 }
 
 void loop() {
@@ -73,7 +81,7 @@ void executarCicloCompleto() {
   mover(CANAL_BASE, posBase, 0, VELOCIDADE_BASE);
   delay(ESTABILIZAR);
 
-  mover(CANAL_GARRA, posGarra, GARRA_ABERTA, VELOCIDADE);
+  mover(CANAL_GARRA, posGarra, 45, VELOCIDADE);
   delay(ESTABILIZAR);
 
   mover(CANAL_PULSO, posPulso, 45, VELOCIDADE);
@@ -85,7 +93,7 @@ void executarCicloCompleto() {
   mover(CANAL_OMBRO, posOmbro, 30, VELOCIDADE_OMBRO);
   delay(ESTABILIZAR);
 
-  mover(CANAL_GARRA, posGarra, GARRA_FECHADA_PEGAR, VELOCIDADE);
+  mover(CANAL_GARRA, posGarra, 82, VELOCIDADE);
   delay(ESTABILIZAR);
 
   mover(CANAL_PULSO, posPulso, 25, VELOCIDADE);
@@ -97,7 +105,7 @@ void executarCicloCompleto() {
   mover(CANAL_PULSO, posPulso, 42, VELOCIDADE);
   delay(ESTABILIZAR);
 
-  mover(CANAL_GARRA, posGarra, GARRA_ABERTA, VELOCIDADE);
+  mover(CANAL_GARRA, posGarra, 45, VELOCIDADE);
   delay(ESTABILIZAR);
 
   mover(CANAL_PULSO, posPulso, 25, VELOCIDADE);
@@ -115,7 +123,7 @@ void resetarParaPosicaoInicial() {
   delay(ESTABILIZAR);
   mover(CANAL_PULSO, posPulso, 0, VELOCIDADE);
   delay(ESTABILIZAR);
-  mover(CANAL_GARRA, posGarra, GARRA_FECHADA, VELOCIDADE);
+  mover(CANAL_GARRA, posGarra, 90, VELOCIDADE);
   delay(ESTABILIZAR);
   mover(CANAL_BASE, posBase, 90, VELOCIDADE_BASE);
   delay(ESTABILIZAR);
